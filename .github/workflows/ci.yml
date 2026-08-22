@@ -1,0 +1,65 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # The library. Runs on the floor declared in go.mod and on current Go.
+  # The suite is hermetic: vocabularies come from tiktoken-go-loader's embedded
+  # assets, so no network access is needed past module download.
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go: ['1.19', 'stable']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ matrix.go }}
+      - run: go build ./...
+      - run: go vet ./...
+      - run: go test -race -count=1 ./...
+
+  # gofmt is checked once; it does not vary by Go version.
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l . )
+          if [ -n "$unformatted" ]; then
+            echo "not gofmt'd:"; echo "$unformatted"; exit 1
+          fi
+
+  # The nested comparison module. Correctness gates only: the paired timing
+  # tests measure a machine, and a shared CI runner is not one worth measuring.
+  bench-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - name: identical token IDs vs an independent port
+        working-directory: bench
+        run: |
+          go vet ./...
+          go test -count=1 -run 'TestSameTokens' .
+      # The cross-language comparison needs a Rust toolchain to run, so CI only
+      # keeps its Go side compiling. See bench/vsrust/README.md to run it.
+      - name: cross-language harness still builds
+        working-directory: bench/vsrust
+        run: |
+          go vet ./...
+          go build ./...

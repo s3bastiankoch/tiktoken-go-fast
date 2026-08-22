@@ -1,0 +1,44 @@
+tiktoken-go-fast is a derivative of pkoukk/tiktoken-go.
+
+  Upstream:   https://github.com/pkoukk/tiktoken-go
+  Fork point: 200cf60 ("Merge pull request #72 from kuzminT/Fix_empty_cache_error")
+  Licence:    MIT, retained unmodified in LICENSE
+
+Changes from upstream:
+
+  - A pre-tokenising scanner, compiled from the pattern string at construction
+    time, replacing the regexp2 walk for every shipped encoding. An unrecognised
+    pattern falls back to regexp2, so a custom encoding is slow rather than
+    wrong. See core_bpe.go.
+
+  - EncodingForModel resolves current model names (gpt-5.x, the o-series,
+    Azure deployment names and ft: fine-tunes) following upstream
+    openai/tiktoken's tiktoken/model.py, with longest-prefix-first matching
+    because Go randomises map iteration. See encoding.go.
+
+  - A differential equivalence gate (equiv_test.go, allenc_test.go) asserting
+    byte-identical output against a verbatim copy of the pre-fork
+    implementation, under all four vocabularies. The suite runs offline against
+    tiktoken-go-loader's embedded vocabularies (main_test.go).
+
+  - b.N-driven benchmarks (bench_test.go), replacing upstream's root
+    benchmark_test.go, which never read b.N and therefore measured nothing.
+    That file is not carried over; test/benchmark_test.go is a different
+    benchmark and is kept, with its missing-corpus path changed from log.Fatal
+    to b.Skip.
+
+  - bench/, a nested module comparing this implementation against the fork-point
+    implementation and against tiktoken-go/tokenizer, an independent port. It
+    vendors upstream's pre-fork sources under bench/internal/upstream (MIT, see
+    that directory's README) and real-text corpora under bench/testdata (see
+    that directory's README for provenance and licences; the Go standard library
+    source there carries Go's BSD-3-Clause licence, reproduced verbatim as
+    bench/testdata/GO-LICENSE).
+
+The model tables in encoding.go (MODEL_TO_ENCODING, MODEL_PREFIX_TO_ENCODING)
+are derived from openai/tiktoken's tiktoken/model.py:
+
+  Source:  https://github.com/openai/tiktoken
+  Licence: MIT, Copyright (c) 2022 OpenAI, Shantanu Jain
+
+The project is not affiliated with or endorsed by the upstream authors.

@@ -1,0 +1,6 @@
+# The Rust arm is given every build advantage the toolchain offers -- fat LTO,
+# one codegen unit, and the host's own instruction set. Go has no equivalent of
+# target-cpu=native, so this is deliberately the unfair direction: whatever the
+# Go arm wins, it wins against Rust's best local build.
+[build]
+rustflags = ["-C", "target-cpu=native"]

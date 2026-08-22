@@ -1,0 +1,44 @@
+# Go build output
+*.exe
+*.dll
+*.so
+*.dylib
+/tiktoken-go-fast
+/bench/bench
+
+# Test and coverage
+*.test
+*.out
+coverage.*
+testdata/fuzz/
+
+# Profiles and traces
+*.prof
+*.pprof
+*.trace
+
+# Cross-language benchmark build output (bench/vsrust)
+/bench/vsrust/rustarm/target/
+/bench/cmd/dumpcorpora/dumpcorpora
+/bench/vsrust/goarm/goarm
+/bench/vsrust/driver/driver
+
+# Go tooling
+go.work
+go.work.sum
+vendor/
+
+# Tokenizer vocabulary cache (TIKTOKEN_CACHE_DIR / DATA_GYM_CACHE_DIR)
+data-gym-cache/
+
+# Python helpers in test/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors and OS
+.DS_Store
+.idea/
+*.swp
+*~
