@@ -1,3 +1,7 @@
+> [!IMPORTANT]
+> This project moved to [s3bastiankoch/tiktoken-fast](https://github.com/s3bastiankoch/tiktoken-fast/tree/main/go),
+> module `github.com/s3bastiankoch/tiktoken-fast/go`. This repository is archived.
+
 # tiktoken-go-fast
 
 A fork of [pkoukk/tiktoken-go](https://github.com/pkoukk/tiktoken-go) with a
